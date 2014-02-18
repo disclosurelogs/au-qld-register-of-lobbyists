@@ -1,3 +1,4 @@
+require 'scraperwiki'
 require 'open-uri'
 require 'yaml'
 class Array
