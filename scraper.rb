@@ -29,6 +29,7 @@ begin
   employees = []
   clients = []
   owners = []
+  meetings = []
   lobbyist_firm = {}
   
   companyABN=lobbypage.xpath("//tr/td/strong[text() = 'A B N:']/ancestor::td/following-sibling::node()/span/text()")
@@ -62,8 +63,14 @@ begin
     end
   end
 
+  id = /id=(\d+)/.match(url).to_s
+  contacturl = "#{baseurl}/#{url}?id=#{id}"
+  puts "Downloading #{contacturl}"
+  lobbycontactpage = Nokogiri::HTML(ScraperWiki.scrape(contacturl))
+  
   ScraperWiki.save(unique_keys=["name","lobbyist_firm_abn"],data=employees, table_name="lobbyists")
   ScraperWiki.save(unique_keys=["name","lobbyist_firm_abn"],data=clients, table_name="lobbyist_clients")
+  ScraperWiki.save(unique_keys=["name","lobbyist_firm_abn"],data=meetings, table_name="lobbyist_meetings")
   ScraperWiki.save(unique_keys=["name","lobbyist_firm_abn"],data=owners, table_name="lobbyist_firm_owners")
   ScraperWiki.save(unique_keys=["business_name","abn"],data=lobbyist_firm, table_name="lobbyist_firms")
      rescue Timeout::Error => e
