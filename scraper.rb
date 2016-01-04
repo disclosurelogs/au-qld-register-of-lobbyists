@@ -1,4 +1,5 @@
 require 'scraperwiki'
+ScraperWiki.sqliteexecute('DROP TABLE IF EXISTS swvariables');
 require 'open-uri'
 require 'yaml'
 class Array
@@ -17,17 +18,8 @@ page = Nokogiri::HTML(html)
 baseurl = "http://lobbyists.integrity.qld.gov.au/register-details/"
 urls = page.search('.demo li a').map {|a| a.attributes['href']}
 
-# resume from the last incomplete url if the scraper was terminated
-resumeFromHere = false
-last_url = ScraperWiki.get_var("last_url", "")
-if last_url == "" then resumeFromHere = true end
-
 lobbyists = urls.map do |url|
   url = "#{baseurl}/#{url}"
-
-  if url == last_url then resumeFromHere = true end
-  if resumeFromHere
-  ScraperWiki.save_var("last_url", url) 
 
   puts "Downloading #{url}"
 begin
@@ -67,7 +59,6 @@ begin
     employeeName = employee.content.gsub("  ", " ").strip
     if employeeName.empty? == false and employeeName.class != 'binary'
       employees << { "lobbyist_firm_name" => lobbyist_firm["business_name"],"lobbyist_firm_abn" => lobbyist_firm["abn"], "name" => employeeName}
-
     end
   end
 
@@ -80,4 +71,3 @@ begin
      end
   end
 end
-ScraperWiki.save_var("last_url", "")
